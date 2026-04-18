@@ -1,0 +1,43 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          xcodebuild -project netease_music_downloader.xcodeproj \
+            -scheme netease_music_downloader \
+            -configuration Release \
+            -derivedDataPath build \
+            ARCHS="arm64 x86_64" \
+            ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package DMG
+        run: |
+          cp -R "build/Build/Products/Release/netease_music_downloader.app" "云音乐下载.app"
+          brew install create-dmg
+          create-dmg \
+            --volname "云音乐下载" \
+            --window-size 600 400 \
+            --icon-size 128 \
+            --icon "云音乐下载.app" 150 185 \
+            --app-drop-link 450 185 \
+            "云音乐下载-${{ github.ref_name }}.dmg" \
+            "云音乐下载.app"
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: 云音乐下载-${{ github.ref_name }}.dmg
