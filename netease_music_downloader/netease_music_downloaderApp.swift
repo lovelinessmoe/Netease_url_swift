@@ -12,6 +12,9 @@ struct netease_music_downloaderApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .ignoresSafeArea()
         }
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentMinSize)
     }
 }
